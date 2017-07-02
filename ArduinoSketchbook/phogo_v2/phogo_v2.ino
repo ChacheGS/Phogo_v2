@@ -32,7 +32,7 @@ void led(bool state) {
 #include <Servo.h>
 
 Servo pen_servo;
-#define PEN_SERVO_PIN 2
+#define PEN_SERVO_PIN 2 // D4
 #define UP 180 // degrees
 #define DOWN 140 // degrees
 
@@ -47,8 +47,8 @@ void pen_move(int deg) {
 // **** begin ULTRASOUND ***
 //--------------------------
 // Based on code by Robi.Wang
-#define ULTRASOUND_TRIGGER_PIN 14
-#define ULTRASOUND_ECHO_PIN 12
+#define ULTRASOUND_TRIGGER_PIN 14 // D6
+#define ULTRASOUND_ECHO_PIN 12 // D5
 
 void init_ultrasound() {
     pinMode(ULTRASOUND_TRIGGER_PIN, OUTPUT);
@@ -95,15 +95,15 @@ int measure_distance_cm_filtered(int nsamples) {
 
 #define HALFSTEP 8
 
-#define S1_1 16
-#define S1_2 5
-#define S1_3 4
-#define S1_4 0
+#define S1_1 16 // D0
+#define S1_2 5 // D1
+#define S1_3 4 // D2
+#define S1_4 0 // D3
 
-#define S2_1 1
-#define S2_2 3
-#define S2_3 15
-#define S2_4 13
+#define S2_1 1 // TX
+#define S2_2 3 // Rx
+#define S2_3 15 // D8
+#define S2_4 13 // D7
 
 
 AccelStepper stepper1(HALFSTEP, S1_1, S1_3, S1_2, S1_4);
@@ -139,5 +139,10 @@ void loop() {
 	}
 
 	runMotors();
+    /*pen_move(0);
+    pen_move(10);
+    pen_move(20);
+    pen_move(30);
+    pen_move(90);*/
 }
 

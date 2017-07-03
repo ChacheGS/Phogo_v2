@@ -148,44 +148,85 @@ void runMotors() {
 #include <ArduinoJson.h>
 unsigned int phogo_controller(String request, char* response, size_t size) {
 
+	/*
+	{
+		"id": 0,
+		"cmd": {
+			"action": "do stuff"
+			"params": {
+				"param1": "value1",
+				"param2": "value2",
+				// ...
+			}
+		}
+									<- "result": "OK|ERROR"
+	}
+	*/
+
 	if (!_isPhogoSetUp) {
 		phogo_setup();
 	}
 
-	const char* json;
+
+	// ArduinoJson Assistant
+
+	const size_t bufferSize = 2 * JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + 120;
+	DynamicJsonBuffer jsonBuffer(bufferSize);
+
+	JsonObject& root = jsonBuffer.parseObject(request);
+
+	int id = root["id"]; // command id
+
+	const char* cmd_action = root["cmd"]["action"]; // action
+
+	const char* cmd_params_param1 = NULL; //root["cmd"]["params"]["param1"]; // "value1"
+	int cmd_params_int = 0;
+	const char* cmd_params_param2 = NULL; //root["cmd"]["params"]["param2"]; // "value2"
+	const char* cmd_params_param3 = NULL;
+
+	int cmd_res = 0;
+	// const char* result = root["result"]; // "ERROR"
+
+	// ArduinoJson Assistant
+
 	unsigned int status_code = 200;
-	int i = 0;
-	int arg = 0;
 
-	char str[200];
-	char res[200];
+	char str[size];
+	char res[50];
 
-	StaticJsonBuffer<200> buff;
-	JsonObject& req = buff.parseObject(request);
-
-	int cmd_id = req["cmd_id"];
-
-	const char* cmd = req["cmd"]["action"];
-	arg = req["cmd"]["arg"];
-
-	DEBUGGING("%d|%s|", cmd_id, cmd);
-
-	JsonObject& obj = buff.createObject();
-	obj["cmd_id"] = cmd_id;
-	if (0 == strcmp("move", cmd)) {
-        //body
-		DEBUGGINGC("%d\n", arg);
-		strcpy(str, "OK");
+	if (0 == strcmp("forward", cmd_action)) {
+		cmd_params_int = root["cmd"]["params"]["units"]; // units
+		cmd_res = phogo_move_forward(cmd_params_int);
+		if (cmd_res	== 0){
+			strcpy(str, "OK");
+		} else {
+			strcpy(str, "ERROR: moving forward %d units", cmd_params_int);
+		}
 		obj["result"] = str;
-	} else if (0 == strcmp("turn", cmd)) {
-        //body
-		DEBUGGINGC("%d\n", arg);
-		strcpy(str, "OK");
+	} else if (0 == strcmp("backward", cmd_action)) {
+		cmd_params_int = root["cmd"]["params"]["units"]; // units
+		cmd_res = phogo_move_backward(cmd_params_int);
+		if (cmd_res	== 0){
+			strcpy(str, "OK");
+		} else {
+			strcpy(str, "ERROR: moving backward %d units", cmd_params_int);
+		}
 		obj["result"] = str;
-	} else if (0 == strcmp("pen", cmd)) {
-        //body
-		DEBUGGINGC("%d\n", arg);
-		strcpy(str, "OK");
+	} else if (0 == strcmp("pen_up", cmd_action)) {
+		cmd_res = phogo_pen_up();
+		if (cmd_res	== 0){
+			strcpy(str, "OK");
+		} else {
+			strcpy(str, "ERROR: pen up");
+		}
+		obj["result"] = str;
+	} else if (0 == strcmp("pen_down", cmd_action)) {
+		cmd_res = phogo_pen_down();
+		if (cmd_res	== 0){
+			strcpy(str, "OK");
+		} else {
+			strcpy(str, "ERROR: pen down");
+		}
 		obj["result"] = str;
 	} else if (0 == strcmp("distance", cmd)) {
         // no arg
@@ -193,19 +234,30 @@ unsigned int phogo_controller(String request, char* response, size_t size) {
 #define ULTRASOUND_SAMPLES_PER_MEASURE 3
 #endif
 		int distance = measure_distance_cm_filtered(ULTRASOUND_SAMPLES_PER_MEASURE);
-		DEBUGGINGC("%d\n", distance);
-		// strcpy(str, "OK");
-		// sprintf(str, "%d", distance);
+		sprintf(str, "%d", distance);
 		obj["result"] = distance;
-	} else if (0 == strcmp("speak", cmd)) {
-        //body
-		DEBUGGINGC("%d\n", arg);
-		strcpy(str, "OK");
+	} else if (0 == strcmp("left", cmd_action)) {
+		cmd_params_int = root["cmd"]["params"]["degrees"]; // degrees
+		cmd_res = phogo_turn_left(cmd_params_int);
+		if (cmd_res	== 0){
+			strcpy(str, "OK");
+		} else {
+			strcpy(str, "ERROR: turning left %d degrees", cmd_params_int);
+		}
+		obj["result"] = str;
+	} else if (0 == strcmp("right", cmd_action)) {
+		cmd_params_int = root["cmd"]["params"]["degrees"]; // degrees
+		cmd_res = phogo_turn_right(cmd_params_int);
+		if (cmd_res	== 0){
+			strcpy(str, "OK");
+		} else {
+			strcpy(str, "ERROR: turning right %d degrees", cmd_params_int);
+		}
 		obj["result"] = str;
 	} else {
         //body
 		DEBUGGINGC("??\n");
-		obj["result"] = "unrecognized command";
+		obj["result"] = "ERROR: unrecognized command";
         status_code = 200; //should be something else?
     }
 

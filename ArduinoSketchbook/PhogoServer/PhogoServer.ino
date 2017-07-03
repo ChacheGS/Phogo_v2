@@ -4,7 +4,7 @@
 #include <ESP8266WebServer.h>
 //#include <WebSocketsServer.h>
 #include <ESP8266HTTPUpdateServer.h>
-// #include <ESP8266mDNS.h>
+#include <ESP8266mDNS.h>
 #include <FS.h>
 #include <string.h>
 
@@ -14,10 +14,10 @@
 // #define DBG_PORT Serial
 #include "debug.h"
 
-const char* ssid = "JAZZTEL_FkyP";
-const char* password = "ua37pfce6kg5";
-// const char* ssid = "Chache Hotspot";
-// const char* password = "wificarlos";
+// const char* ssid = "JAZZTEL_FkyP";
+// const char* password = "ua37pfce6kg5";
+const char* ssid = "Chache Hotspot";
+const char* password = "wificarlos";
 const char* host = "phogo";
 
 //Globals
@@ -104,7 +104,7 @@ void WifiConnect() {
 }*/
 
 // MDNS
-/*void MDNSConnect() {
+void MDNSConnect() {
     if (!MDNS.begin(host)) {
         DEBUGGING("Error setting up MDNS responder!\n");
         while (1) {
@@ -112,17 +112,17 @@ void WifiConnect() {
         }
     }
     DEBUGGING("mDNS responder started\n");
-    MDNS.addService("ws", "tcp", 81);
+    // MDNS.addService("ws", "tcp", 81);
     MDNS.addService("http", "tcp", 80);
-}*/
+}
 
 // HTTP updater connection
-/*void HTTPUpdateConnect() {
+void HTTPUpdateConnect() {
     http_updater.setup(&http_server);
-    // http_server.begin();
-    // DEBUGGING("HTTPUpdateServer ready!\n");
-    // DEBUGGING("Type http://%s.local/update in your browser\n", host);
-}*/
+    http_server.begin();
+    DEBUGGING("HTTPUpdateServer ready!\n");
+    DEBUGGING("Updater available at: http://%s.local/update\n", host);
+}
 
 
 void setup() {
@@ -136,8 +136,8 @@ void setup() {
 
     WifiConnect();
     //WebSocketConnect();
-    //MDNSConnect();
-    //HTTPUpdateConnect();
+    MDNSConnect();
+    HTTPUpdateConnect();
     HTTPServerSetup();
 
 }

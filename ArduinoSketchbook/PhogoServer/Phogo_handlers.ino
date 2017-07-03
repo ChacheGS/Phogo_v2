@@ -73,16 +73,16 @@ ESP8266WebServer server ( 80 );*/
 }*/
 
 
-void handler_root(void) {
+void handle_root(void) {
 
 	DEBUGGING("HTTP Server: handleRoot\n");
 	http_server.send( 200, "text/plain", "This is the root." );
 
 }
 
-#define MAX_LEN_RESPONSE 200
+#define MAX_LEN_RESPONSE 250
 
-void handler_api_do(void) {
+void handle_command(void) {
 	char response[MAX_LEN_RESPONSE];	
 	unsigned int status_code = 0;
 
@@ -112,8 +112,8 @@ void handler_404() {
 
 void HTTPServerSetup ( void ) {
 	
-	http_server.on ( "/", handler_root );
-	http_server.on ( "/do", HTTP_POST, handler_api_do);
+	http_server.on ( "/", handle_root );
+	http_server.on ( "/command", HTTP_POST, handle_command);
 
 	// http_server.on("/post", HTTP_POST, [](){
 		// http_server.send ( 200, "text/json", "{\"http_server\":\"plain\"}" );

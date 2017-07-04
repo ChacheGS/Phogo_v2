@@ -13,10 +13,10 @@
 
 #include "debug.h"
 
-// const char* ssid = "JAZZTEL_FkyP";
-// const char* password = "ua37pfce6kg5";
-const char* ssid = "Chache Hotspot";
-const char* password = "wificarlos";
+const char* ssid = "Low Signal";
+const char* password = "sierragador15";
+// const char* ssid = "Chache Hotspot";
+// const char* password = "wificarlos";
 const char* host = "phogo";
 
 //Globals
@@ -57,18 +57,22 @@ void WifiConnect() {
     }
 
     // TODO: maybe retry connection?
-    
+
     // TODO: start a WiFi AP
 
+}
+
+void stop_forever() {
+    while (1) {
+        delay(1000);
+    }
 }
 
 // mDNS
 void mDNSConnect() {
     if (!MDNS.begin(host)) {
         DEBUGGING("Error setting up mDNS!\n");
-        while (1) {
-            delay(1000);
-        }
+        stop_forever();
     }
     DEBUGGING("mDNS started\n");
     // MDNS.addService("ws", "tcp", 81);
@@ -94,7 +98,6 @@ void setup() {
 #endif
 
     WifiConnect();
-    //WebSocketConnect();
     mDNSConnect();
     HTTPUpdateConnect();
     HTTPServerSetup();
@@ -103,16 +106,15 @@ void setup() {
 
 int lastTimeHost;
 int lastTimeRefresh;
-// the loop function runs over and over again forever
+
 void loop() {
     if (WiFi.status() != WL_CONNECTED) {
+        // TODO: ensure_connection()
         WifiConnect();
-        //WebSocketConnect();
-        //mDNSConnect();
+        mDNSConnect();
     } else {
 
-        // webSocket.loop();
-        // give the ESP a change to du its own stuff
+        // give the ESP a chance to do its own stuff
         // we serve the client once every 10 ms
         if (millis() - lastTimeHost > 10) {
             http_server.handleClient();

@@ -106,7 +106,7 @@ float measure_distance_cm() {
 #define S1_4 0 // D3
 
 #define S2_1 1 // TX
-#define S2_2 3 // Rx
+#define S2_2 3 // RX
 #define S2_3 15 // D8
 #define S2_4 13 // D7
 

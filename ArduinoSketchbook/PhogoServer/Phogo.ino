@@ -33,13 +33,13 @@ void led(bool state) {
 
 Servo pen_servo;
 #define PEN_SERVO_PIN 2 // D4
-#define UP 180 // degrees
-#define DOWN 140 // degrees
+#define SERVO_UP 180 // degrees
+#define SERVO_DOWN 140 // degrees
 
 void pen_move(int deg) {
 	pen_servo.attach(PEN_SERVO_PIN);
 	pen_servo.write(deg);
-	delay(500);
+	delay(250);
     pen_servo.detach(); // power down the servo after the target position has been reached
 }
 //---( end servo pen )---
@@ -66,7 +66,7 @@ int measure_distance_cm_filtered(int nsamples) {
             nsamples--;
         }
         n--;
-        delay(10);
+        delay(30);
     }
     //Serial.println(nsamples);
     if (nsamples < 1) {
@@ -179,8 +179,8 @@ unsigned int phogo_controller(String request, char* response, size_t size) {
 
 	const char* cmd_action = root["cmd"]["action"]; // action
 
-	const char* cmd_params_param1 = NULL; //root["cmd"]["params"]["param1"]; // "value1"
 	int cmd_params_int = 0;
+	const char* cmd_params_param1 = NULL; //root["cmd"]["params"]["param1"]; // "value1"
 	const char* cmd_params_param2 = NULL; //root["cmd"]["params"]["param2"]; // "value2"
 	const char* cmd_params_param3 = NULL;
 
@@ -200,74 +200,74 @@ unsigned int phogo_controller(String request, char* response, size_t size) {
 		if (cmd_res	== 0){
 			strcpy(str, "OK");
 		} else {
-			strcpy(str, "ERROR: moving forward %d units", cmd_params_int);
+			sprintf(str, "ERROR: moving forward %d units", cmd_params_int);
 		}
-		obj["result"] = str;
+		root["result"] = str;
 	} else if (0 == strcmp("backward", cmd_action)) {
 		cmd_params_int = root["cmd"]["params"]["units"]; // units
 		cmd_res = phogo_move_backward(cmd_params_int);
 		if (cmd_res	== 0){
 			strcpy(str, "OK");
 		} else {
-			strcpy(str, "ERROR: moving backward %d units", cmd_params_int);
+			sprintf(str, "ERROR: moving backward %d units", cmd_params_int);
 		}
-		obj["result"] = str;
+		root["result"] = str;
 	} else if (0 == strcmp("pen_up", cmd_action)) {
 		cmd_res = phogo_pen_up();
 		if (cmd_res	== 0){
 			strcpy(str, "OK");
 		} else {
-			strcpy(str, "ERROR: pen up");
+			sprintf(str, "ERROR: pen up");
 		}
-		obj["result"] = str;
+		root["result"] = str;
 	} else if (0 == strcmp("pen_down", cmd_action)) {
 		cmd_res = phogo_pen_down();
 		if (cmd_res	== 0){
 			strcpy(str, "OK");
 		} else {
-			strcpy(str, "ERROR: pen down");
+			sprintf(str, "ERROR: pen down");
 		}
-		obj["result"] = str;
-	} else if (0 == strcmp("distance", cmd)) {
+		root["result"] = str;
+	} else if (0 == strcmp("distance", cmd_action)) {
         // no arg
 #ifndef ULTRASOUND_SAMPLES_PER_MEASURE
 #define ULTRASOUND_SAMPLES_PER_MEASURE 3
 #endif
 		int distance = measure_distance_cm_filtered(ULTRASOUND_SAMPLES_PER_MEASURE);
 		sprintf(str, "%d", distance);
-		obj["result"] = distance;
+		root["result"] = distance;
 	} else if (0 == strcmp("left", cmd_action)) {
 		cmd_params_int = root["cmd"]["params"]["degrees"]; // degrees
 		cmd_res = phogo_turn_left(cmd_params_int);
 		if (cmd_res	== 0){
 			strcpy(str, "OK");
 		} else {
-			strcpy(str, "ERROR: turning left %d degrees", cmd_params_int);
+			sprintf(str, "ERROR: turning left %d degrees", cmd_params_int);
 		}
-		obj["result"] = str;
+		root["result"] = str;
 	} else if (0 == strcmp("right", cmd_action)) {
 		cmd_params_int = root["cmd"]["params"]["degrees"]; // degrees
 		cmd_res = phogo_turn_right(cmd_params_int);
 		if (cmd_res	== 0){
 			strcpy(str, "OK");
 		} else {
-			strcpy(str, "ERROR: turning right %d degrees", cmd_params_int);
+			sprintf(str, "ERROR: turning right %d degrees", cmd_params_int);
 		}
-		obj["result"] = str;
+		root["result"] = str;
 	} else {
         //body
 		DEBUGGINGC("??\n");
-		obj["result"] = "ERROR: unrecognized command";
+		root["result"] = "ERROR: unrecognized command";
         status_code = 200; //should be something else?
     }
 
     //run the motors, blocking
-    motors.runSpeedToPosition();
+    // motors.runSpeedToPosition();
 
 #ifdef DEBUG
-    obj.prettyPrintTo(response, size);
+    root.prettyPrintTo(response, size);
 #else
-    obj.printTo(response, size);
+    root.printTo(response, size);
 #endif
 
     return status_code;

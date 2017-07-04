@@ -17,7 +17,7 @@ const char* ssid = "Low Signal";
 const char* password = "sierragador15";
 // const char* ssid = "Chache Hotspot";
 // const char* password = "wificarlos";
-const char* host = "phogo";
+const char* mdns_host = "phogo";
 
 //Globals
 ESP8266WebServer http_server(80);
@@ -29,6 +29,7 @@ const char* OTAUser     = "";
 const char* OTAPassword = "";
 void OTAService(ESP8266WebServer* server, const char* path) {
     if (!strcmp(OTAUser, "") && !strcmp(OTAPassword, "")) {
+        // no user/password
         http_updater.setup(server, path);
     } else {
         http_updater.setup(server, path, OTAUser, OTAPassword);
@@ -70,7 +71,7 @@ void stop_forever() {
 
 // mDNS
 void mDNSConnect() {
-    if (!MDNS.begin(host)) {
+    if (!MDNS.begin(mdns_host)) {
         DEBUGGING("Error setting up mDNS!\n");
         stop_forever();
     }
@@ -84,7 +85,7 @@ void HTTPUpdateConnect() {
     http_updater.setup(&http_server);
     http_server.begin();
     DEBUGGING("HTTPUpdateServer ready!\n");
-    DEBUGGING("Updater available at: http://%s.local/update\n", host);
+    DEBUGGING("Updater available at: http://%s.local/update\n", mdns_host);
 }
 
 

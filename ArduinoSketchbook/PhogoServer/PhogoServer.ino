@@ -98,6 +98,8 @@ void setup() {
     // Serial.println();
 #endif
 
+    SPIFFS.begin();
+
     WifiConnect();
     mDNSConnect();
     HTTPUpdateConnect();

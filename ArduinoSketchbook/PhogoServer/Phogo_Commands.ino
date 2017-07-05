@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 int phogo_pen_down() {
   pen_move(SERVO_DOWN);
   return 0;

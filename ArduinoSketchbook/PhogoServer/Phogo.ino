@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 /* the actual phogo */
 // This source file is part of the Phogo project
 // https://github.com/CRM-UAM/Phogo

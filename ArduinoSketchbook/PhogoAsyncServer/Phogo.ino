@@ -58,32 +58,32 @@ NewPing sonar(PING_TRIGGER, PING_ECHO, MAX_DISTANCE); // NewPing setup of pin an
 // NewPing sonar(PING_PIN, PING_PIN, MAX_DISTANCE); // NewPing setup of pin and maximum distance.
 
 int measure_distance_cm_filtered(int nsamples) {
-    float res = 0;
-    int n = nsamples;
-    while (n > 0) {
-        int dist = sonar.ping_cm();
-        if (dist > 0) {
-            res += dist;
-        } else {
-            nsamples--;
-        }
-        n--;
-        delay(30);
-    }
+	float res = 0;
+	int n = nsamples;
+	while (n > 0) {
+		int dist = sonar.ping_cm();
+		if (dist > 0) {
+			res += dist;
+		} else {
+			nsamples--;
+		}
+		n--;
+		delay(30);
+	}
     //Serial.println(nsamples);
-    if (nsamples < 1) {
-        return 0;
-    }
+	if (nsamples < 1) {
+		return 0;
+	}
 
-    return res / nsamples;
+	return res / nsamples;
 }
 
 #define ULTRASOUND_TRIGGER_PIN PING_TRIGGER
 #define ULTRASOUND_ECHO_PIN PING_ECHO
 float measure_distance_cm() {
     // Set to LOW to make a clean pulse
-    digitalWrite(ULTRASOUND_TRIGGER_PIN, LOW);
-    delayMicroseconds(2);
+	digitalWrite(ULTRASOUND_TRIGGER_PIN, LOW);
+	delayMicroseconds(2);
     // TRIGGER
 	digitalWrite(ULTRASOUND_TRIGGER_PIN, HIGH);
     // pulse of *at least* 10us
@@ -126,10 +126,10 @@ MultiStepper motors;
 bool _isPhogoSetUp = false;
 
 void phogo_setup() {
-  pinMode(PEN_SERVO_PIN, OUTPUT);
-  pinMode(ULTRASOUND_TRIGGER_PIN, OUTPUT);
-  pinMode(ULTRASOUND_ECHO_PIN, INPUT);
-  
+	pinMode(PEN_SERVO_PIN, OUTPUT);
+	pinMode(ULTRASOUND_TRIGGER_PIN, OUTPUT);
+	pinMode(ULTRASOUND_ECHO_PIN, INPUT);
+
 	right_motor.setMaxSpeed(MOTORS_MAX_SPEED);
 	right_motor.setAcceleration(MOTORS_ACCEL);
 	right_motor.setSpeed(MOTORS_SPEED);
@@ -152,7 +152,7 @@ void runMotors() {
 
 //---( begin command interpreter )---
 #include <ArduinoJson.h>
-unsigned int phogo_controller(String request, char* response, size_t size) {
+unsigned int phogo_controller(const char* request, char* response, size_t size) {
 
 	/*
 	{
@@ -173,9 +173,9 @@ unsigned int phogo_controller(String request, char* response, size_t size) {
 		phogo_setup();
 	}
 
-  
-  DEBUGGINGL(request);
-  DEBUGGINGL("\n");
+
+	DEBUGGINGL(request);
+	DEBUGGINGL("\n");
 
 	// ArduinoJson Assistant
 
@@ -183,6 +183,11 @@ unsigned int phogo_controller(String request, char* response, size_t size) {
 	DynamicJsonBuffer jsonBuffer(bufferSize);
 
 	JsonObject& root = jsonBuffer.parseObject(request);
+
+	if (!root.success()) {
+		strcpy(response, "{\"result\": \"ERROR: internal error while parsing the command.\"}");
+		return 200;
+	}
 
 	int id = root["id"]; // command id
 

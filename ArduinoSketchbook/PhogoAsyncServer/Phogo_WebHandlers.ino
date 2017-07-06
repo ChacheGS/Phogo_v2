@@ -1,24 +1,28 @@
 #define MAX_LEN_RESPONSE 250
 
+static String current_command = String();
+
+void get_command(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+  if (!index) {
+    DEBUGGING("Body Start: %u/%u\n", len, total);
+  }
+  DEBUGGING("Body in progress: |%s| %uB\n", (const char*)data, index + len);
+  current_command += String((const char*)data);
+  if (index + len == total) {
+    DEBUGGING("Body Success: %uB\n", index + len);
+  }
+}
+
 void handle_command(AsyncWebServerRequest * request) {
   char response[MAX_LEN_RESPONSE] = "{\"result\": \"OK\"}";
-  unsigned int status_code = 200;
+  unsigned int status_code = 0;
 
-  String payload = "";
+  DEBUGGINGC("Handling command: ");
+  DEBUGGINGL(current_command.c_str());
 
-  DEBUGGINGC("Handling command\n");
+  status_code = phogo_controller(current_command.c_str(), response, MAX_LEN_RESPONSE);
 
-  int args = request->args();
-  DEBUGGINGC("%d\n", args);
-  for (int i = 0; i < args; i++) {
-    DEBUGGINGC("ARG[%s]: %s\n", request->argName(i).c_str(), request->arg(i).c_str());
-  }
-
-  if (request->hasParam("download", true)) {
-    AsyncWebParameter* p = request->getParam("download", true);
-    DEBUGGINGC("PARAM[%s]: %s\n", p->name().c_str(), p->value().c_str());
-  }
-  //status_code = phogo_controller(request->arg("plain"), response, MAX_LEN_RESPONSE);
+  current_command = String();
 
   request->send(status_code, "text/json", response);
 }
@@ -93,27 +97,7 @@ void HTTPServerSetup ( void ) {
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
 
   // api
-  server.on ( "/json", HTTP_POST, handle_command);
-
-  server.onRequestBody([](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
-    if (!index)
-      Serial.printf("BodyStart: %u/%u\n", len, total);
-    Serial.printf("%s", (const char*)data);
-    if (index + len == total)
-      Serial.printf("BodyEnd: %u\n", total);
-  });
-
-  server.onFileUpload([](AsyncWebServerRequest * request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-    if (!index) {
-      Serial.printf("UploadStart: %u/%s\n", len, filename.c_str());
-    }
-    for (size_t i = 0; i < len; i++) {
-      Serial.write(data[i]);
-    }
-    if (final) {
-      Serial.printf("UploadEnd: %s, %u B\n", filename.c_str(), index + len);
-    }
-  });
+  server.on("/json", HTTP_POST, handle_command, NULL, get_command);
 
   server.onNotFound( handler_404 );
 

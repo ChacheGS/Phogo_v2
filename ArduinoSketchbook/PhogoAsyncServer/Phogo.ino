@@ -126,6 +126,10 @@ MultiStepper motors;
 bool _isPhogoSetUp = false;
 
 void phogo_setup() {
+  pinMode(PEN_SERVO_PIN, OUTPUT);
+  pinMode(ULTRASOUND_TRIGGER_PIN, OUTPUT);
+  pinMode(ULTRASOUND_ECHO_PIN, INPUT);
+  
 	right_motor.setMaxSpeed(MOTORS_MAX_SPEED);
 	right_motor.setAcceleration(MOTORS_ACCEL);
 	right_motor.setSpeed(MOTORS_SPEED);

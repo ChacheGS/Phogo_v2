@@ -27,8 +27,7 @@ void WifiConnect() {
     int connection_time = millis();
     bool connection_success = true;
     WiFi.hostname(mdns_hostname);
-    WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP(mdns_hostname);
+    WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED && connection_success) {
@@ -40,14 +39,30 @@ void WifiConnect() {
     }
     if (connection_success) {
         DEBUGGING("WiFi Connected. Local IP: %u.%u.%u.%u\n", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
+        return;
     } else {
-        DEBUGGING("WiFi Connection to '%s' timed out after %.2f s\n", ssid, (millis() - connection_time) / 1000.0);
+        DEBUGGING("WiFi Connection to '%s' timed out after ", ssid);
+        DEBUGGINGL((millis() - connection_time) / 1000.0));
+        DEBUGGINGL(" s\n");
     }
 
     // TODO: maybe retry connection?
 
-    // TODO: start a WiFi AP
+    char APName[20] = {0};
+    sprintf(APName, "Phogo%08X", ESP.getFlashChipId());
+    DEBUGGING("Starting AP mode as '%s'\n", APName);
+    WiFi.mode(WIFI_AP);
+    // ap config
+    IPAddress ip(10, 0, 0, 2);
+    IPAddress gateway(10, 0, 0, 1);
+    IPAddress subnet(255, 255, 255, 0);
+    Wifi.softAPConfig(ip, gateway, subnet);
+    WiFi.softAP(APName);
 
+    delay(500);
+    DEBUGGING("Started AP mode as '%s' [ip=", APName);
+    DEBUGGINGL(WiFi.softAPIP());
+    DEBUGGINGC("]\n");
 }
 
 void stop_forever() {
@@ -62,7 +77,7 @@ void mDNSConnect() {
         DEBUGGING("Error setting up mDNS!\n");
         stop_forever();
     }
-    DEBUGGING("mDNS started\n");
+    DEBUGGING("mDNS started: 'http://%s.local/'\n", mdns_hostname);
     MDNS.addService("http", "tcp", 80);
 }
 

@@ -26,7 +26,7 @@ class _Phogo(object):
     """docstring for _Phogo"""
 
     def __init__(self, host, port=80, url='/'):
-        self._cmd_id = 0
+        self._cmd_id = 1
 
         host = host if host.startswith(
             '//') else '//' + host  # needed by urlparse to conform to RFC

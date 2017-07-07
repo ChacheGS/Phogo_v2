@@ -1,6 +1,6 @@
 #define MAX_LEN_JSON 250
 
-static char[MAX_LEN_JSON] current_command = {0}; // initialized to empty
+static char current_command[MAX_LEN_JSON] = {0}; // initialized to empty
 
 void get_command(AsyncWebServerRequest* request, uint8_t* data, size_t len, size_t index, size_t total) {
     if (!index) {
@@ -11,13 +11,13 @@ void get_command(AsyncWebServerRequest* request, uint8_t* data, size_t len, size
     if (total >= MAX_LEN_JSON) {
         AsyncResponseStream* response = request->beginResponseStream("text/plain");
         response->print("Command too long\n");
-        response->print("Expected at most %d characters. Got %u characters.", MAX_LEN_JSON, len);
+        response->printf("Expected at most %d characters. Got %u characters.", MAX_LEN_JSON, len);
         request->send(response);
         return;
     }
 
     // append to the end of the current command
-    char* pos = current_command[index];
+    char* pos = current_command + index;
     strncpy(pos, (const char*) data, len);
 
     // if its the last piece

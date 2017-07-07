@@ -4,7 +4,7 @@
 from .phogo import Phogo, BROWSER, test
 from browser import window # Brython specific module
 
-json_endpoint = '//{}:5000/json'.format(window.location.hostname)
+json_endpoint = '//{}/json'.format(window.location.hostname)
 
 phogo = Phogo(json_endpoint)
 

@@ -1,6 +1,9 @@
 #ifndef DEBUGUTILS_H
 #define DEBUGUTILS_H
 
+// comment out to get rid of the debug output
+#define DEBUG 
+
 #ifdef DEBUG
 
 	#define DEBUGGING    \

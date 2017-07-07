@@ -16,14 +16,14 @@ void pen_move(int deg) {
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop() {
   Serial.println("0");
   pen_move(0);
-  Serial.println("80");
-  pen_move(80);
+  Serial.println("90");
+  pen_move(90);
   Serial.println("180");
   pen_move(180);
 }

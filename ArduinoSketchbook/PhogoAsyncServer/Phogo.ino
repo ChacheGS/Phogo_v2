@@ -108,6 +108,8 @@ MultiStepper motors;
 bool _isPhogoSetUp = false;
 
 void phogo_setup() {
+	phogo_pen_up();
+
     pinMode(ULTRASOUND_TRIGGER_PIN, OUTPUT);
     pinMode(ULTRASOUND_ECHO_PIN, INPUT);
 

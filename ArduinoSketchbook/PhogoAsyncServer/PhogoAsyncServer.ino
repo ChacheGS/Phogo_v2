@@ -99,13 +99,14 @@ void setup() {
     WifiConnect();
     mDNSConnect();
     HTTPServerSetup();
+    phogo_setup();
 }
 
 int lastTimeHost;
 int lastTimeRefresh;
 
 void loop() {
-    if (WiFi.status() != WL_CONNECTED && !isAP) {
+    if ((WiFi.status() != WL_CONNECTED) && !isAP) {
         // TODO: ensure_connection()
         WifiConnect();
         mDNSConnect();

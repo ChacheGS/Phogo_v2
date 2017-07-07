@@ -76,7 +76,8 @@ int phogo_turn_left(float degrees) {
     steps[0] = -s;
     steps[1] = -s;
     motors.moveTo(steps);
-    motors.runSpeedToPosition();
+    runMotors();
+    // motors.runSpeedToPosition();
     left_motor.setCurrentPosition(0);
     right_motor.setCurrentPosition(0);
 
@@ -93,7 +94,8 @@ int phogo_turn_right(float degrees) {
     steps[0] = s;
     steps[1] = s;
     motors.moveTo(steps);
-    motors.runSpeedToPosition();
+    runMotors();
+    // motors.runSpeedToPosition();
     left_motor.setCurrentPosition(0);
     right_motor.setCurrentPosition(0);
 

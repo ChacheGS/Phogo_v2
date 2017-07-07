@@ -19,6 +19,8 @@ const char* mdns_hostname = "phogo";
 AsyncWebServer server(80);
 
 #define WIFI_CONNECTION_TIMEOUT 1000 * 10 // 10 s total
+#define RETRIES 3
+uint8_t consumed_retries = 0;
 // Wifi Connection
 bool isAP = false;
 void WifiConnect() {
@@ -28,7 +30,7 @@ void WifiConnect() {
     WiFi.hostname(mdns_hostname);
     WiFi.mode(WIFI_STA);
 
-    DEBUGGING("[WIFI] connecting to '%s'\n", ssid);
+    DEBUGGING("[WIFI]\tconnecting to '%s'\n", ssid);
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED && connection_success) {
@@ -40,21 +42,21 @@ void WifiConnect() {
         delay(100);
     }
     if (connection_success) {
-        DEBUGGING("WiFi Connected. Local IP: ");
+        DEBUGGING("[WIFI]\tConnected to '%s'. Local IP: ", ssid);
         DEBUGGINGL(WiFi.localIP());
         DEBUGGINGC("\n");
         return;
     } else {
-        DEBUGGING("WiFi Connection to '%s' timed out after ", ssid);
+        DEBUGGING("[WIFI]\tConnection to '%s' timed out after ", ssid);
         DEBUGGINGL(connection_time / 1000.0);
         DEBUGGINGL(" s\n");
     }
 
     // TODO: maybe retry connection?
 
-    char APName[20] = {0};
+    char APName[20]\t= {0};
     sprintf(APName, "Phogo%08X", ESP.getFlashChipId());
-    DEBUGGING("Starting AP mode as '%s'\n", APName);
+    DEBUGGING("[WIFI]\tStarting AP mode as '%s'\n", APName);
     WiFi.mode(WIFI_AP);
     // ap config
     IPAddress ip(10, 0, 0, 2);
@@ -66,12 +68,20 @@ void WifiConnect() {
     delay(500);
 
     if (connection_success) {
-        DEBUGGING("Started AP mode as '%s' [password=%s] [ip=", APName, APName);
+        DEBUGGING("[WIFI]\tStarted AP mode as '%s' [password=%s] [ip=", APName, APName);
         DEBUGGINGL(WiFi.softAPIP());
         DEBUGGINGC("]\n");
         isAP = true;
     } else {
-        DEBUGGING("[WIFI] AP mode failed\n");
+        DEBUGGING("[WIFI]\tAP mode failed\n");
+    }
+    
+    if (consumed_retries > RETRIES) {
+        DEBUGGING("[PHOGO]\tConnection failed. Stopping forever.");
+        stop_forever();
+    } else {
+        ++consumed_retries;
+        WifiConnect();
     }
 }
 
@@ -88,10 +98,9 @@ void stop_forever() {
 // mDNS
 void mDNSConnect() {
     if (!MDNS.begin(mdns_hostname)) {
-        DEBUGGING("Error setting up mDNS!\n");
-        stop_forever();
+        DEBUGGING("[MDNS]\tSetup error\n");
     }
-    DEBUGGING("mDNS started: 'http://%s.local/'\n", mdns_hostname);
+    DEBUGGING("[MDNS]\tStarted: 'http://%s.local/'\n", mdns_hostname);
     MDNS.addService("http", "tcp", 80);
 }
 

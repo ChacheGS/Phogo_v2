@@ -3,10 +3,7 @@
 static char current_command[MAX_LEN_JSON] = {0}; // initialized to empty
 
 void get_command(AsyncWebServerRequest* request, uint8_t* data, size_t len, size_t index, size_t total) {
-    if (!index) {
-        DEBUGGING("Body Start: %u/%u\n", len, total);
-    }
-    DEBUGGING("Body in progress: |%s| %uB\n", (const char*)data, index + len);
+    DEBUGGING("[HTTP]\tReceiveing body %uB / %uB\n", index + len, total);
 
     if (total >= MAX_LEN_JSON) {
         AsyncResponseStream* response = request->beginResponseStream("text/plain");
@@ -22,7 +19,7 @@ void get_command(AsyncWebServerRequest* request, uint8_t* data, size_t len, size
 
     // if its the last piece
     if (index + len == total) {
-        DEBUGGING("Body Success: %uB\n", index + len);
+        DEBUGGING("[HTTP]\tBody received %uB / %uB\n", index + len, total);
         current_command[total] = 0;
     }
 }
@@ -31,7 +28,7 @@ void handle_command(AsyncWebServerRequest* request) {
     char response[MAX_LEN_JSON] = "{\"result\": \"OK\"}";
     unsigned int status_code = 0;
 
-    DEBUGGINGC("Handling command: %s\n", current_command);
+    DEBUGGINGC("[HTTP]\tHandling command: %s\n", current_command);
 
     status_code = phogo_controller(current_command, response, MAX_LEN_JSON);
 

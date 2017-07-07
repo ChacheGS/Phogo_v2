@@ -10,13 +10,13 @@ void pen_move(int deg) {
 
 int phogo_pen_down() {
     pen_move(SERVO_DOWN);
-    DEBUGGING("Pen down\n");
+    DEBUGGING("[PHOGO]\tPen down\n");
     return 0;
 }
 
 int phogo_pen_up() {
     pen_move(SERVO_UP);
-    DEBUGGING("Pen up\n");
+    DEBUGGING("[PHOGO]\tPen up\n");
     return 0;
 }
 
@@ -38,7 +38,7 @@ int phogo_move_forward(float distance) {
     int s = int(distance * steps_dist);
     steps[0] = -s;
     steps[1] = s;
-    DEBUGGING("Moving forward ");
+    DEBUGGING("[PHOGO]\tMoving forward ");
     DEBUGGINGL(distance);
     DEBUGGINGC(" (%d steps)\n", s);
     motors.moveTo(steps);
@@ -54,7 +54,7 @@ int phogo_move_backward(float distance) {
     int s = int(distance * steps_dist);
     steps[0] = s;
     steps[1] = -s;
-    DEBUGGING("Moving backward ");
+    DEBUGGING("[PHOGO]\tMoving backward ");
     DEBUGGINGL(distance);
     DEBUGGINGC(" (%d steps)\n", s);
     motors.moveTo(steps);
@@ -69,7 +69,7 @@ int phogo_move_backward(float distance) {
 int phogo_turn_left(float degrees) {
     float distance = wheel_bpi * (degrees / 360.0);
     int s = int(distance * steps_dist);
-    DEBUGGING("Turning left ");
+    DEBUGGING("[PHOGO]\tTurning left ");
     DEBUGGINGL(degrees);
     DEBUGGINGC(" (%d steps) -> ", s);
     DEBUGGINGL(distance);
@@ -87,7 +87,7 @@ int phogo_turn_left(float degrees) {
 int phogo_turn_right(float degrees) {
     float distance = wheel_bpi * (degrees / 360.0);
     int s = int(distance * steps_dist);
-    DEBUGGING("Turning right ");
+    DEBUGGING("[PHOGO]\tTurning right ");
     DEBUGGINGL(degrees);
     DEBUGGINGC(" (%d steps) -> ", s);
     DEBUGGINGL(distance);

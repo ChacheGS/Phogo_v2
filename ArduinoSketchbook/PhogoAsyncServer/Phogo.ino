@@ -174,9 +174,10 @@ unsigned int phogo_controller(const char* request, char* response, size_t size) 
     char str[size];
     char res[50];
 
-    DEBUGGING("Action requested: %s\n", cmd_action);
+    DEBUGGING("[PARS]\tAction requested: %s\n", cmd_action);
     if (0 == strcmp("forward", cmd_action)) {
         cmd_params_int = root["cmd"]["params"]["units"]; // units
+        DEBUGGING("[PARS]\tWith parameter %d\n", cmd_params_int);
         cmd_res = phogo_move_forward(cmd_params_int);
         if (cmd_res	== 0) {
             strcpy(str, "OK");
@@ -186,6 +187,7 @@ unsigned int phogo_controller(const char* request, char* response, size_t size) 
         root["result"] = str;
     } else if (0 == strcmp("backward", cmd_action)) {
         cmd_params_int = root["cmd"]["params"]["units"]; // units
+        DEBUGGING("[PARS]\tWith parameter %d\n", cmd_params_int);
         cmd_res = phogo_move_backward(cmd_params_int);
         if (cmd_res	== 0) {
             strcpy(str, "OK");
@@ -219,6 +221,7 @@ unsigned int phogo_controller(const char* request, char* response, size_t size) 
         root["result"] = distance;
     } else if (0 == strcmp("left", cmd_action)) {
         cmd_params_int = root["cmd"]["params"]["degrees"]; // degrees
+        DEBUGGING("[PARS]\tWith parameter %d\n", cmd_params_int);
         cmd_res = phogo_turn_left(cmd_params_int);
         if (cmd_res	== 0) {
             strcpy(str, "OK");
@@ -228,6 +231,7 @@ unsigned int phogo_controller(const char* request, char* response, size_t size) 
         root["result"] = str;
     } else if (0 == strcmp("right", cmd_action)) {
         cmd_params_int = root["cmd"]["params"]["degrees"]; // degrees
+        DEBUGGING("[PARS]\tWith parameter %d\n", cmd_params_int);
         cmd_res = phogo_turn_right(cmd_params_int);
         if (cmd_res	== 0) {
             strcpy(str, "OK");
@@ -245,11 +249,7 @@ unsigned int phogo_controller(const char* request, char* response, size_t size) 
     //run the motors, blocking
     // motors.runSpeedToPosition();
 
-#ifdef DEBUG
-    root.prettyPrintTo(response, size);
-#else
     root.printTo(response, size);
-#endif
 
     return status_code;
 }

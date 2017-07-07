@@ -22,7 +22,8 @@ AsyncWebServer server(80);
 // Wifi Connection
 bool isAP = false;
 void WifiConnect() {
-    int connection_time = millis();
+    int connection_time = 0;
+    int connection_start = millis();
     bool connection_success = true;
     WiFi.hostname(mdns_hostname);
     WiFi.mode(WIFI_STA);
@@ -31,7 +32,8 @@ void WifiConnect() {
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED && connection_success) {
-        if (millis() - connection_time > WIFI_CONNECTION_TIMEOUT) {
+        connection_time = millis() - connection_start;
+        if (connection_time > WIFI_CONNECTION_TIMEOUT) {
             // we leave the loop after the timeout
             connection_success = false;
         }
@@ -44,7 +46,7 @@ void WifiConnect() {
         return;
     } else {
         DEBUGGING("WiFi Connection to '%s' timed out after ", ssid);
-        DEBUGGINGL((millis() - connection_time) / 1000.0);
+        DEBUGGINGL(connection_time / 1000.0);
         DEBUGGINGL(" s\n");
     }
 
@@ -59,18 +61,27 @@ void WifiConnect() {
     IPAddress gateway(10, 0, 0, 1);
     IPAddress subnet(255, 255, 255, 0);
     WiFi.softAPConfig(ip, gateway, subnet);
-    WiFi.softAP(APName);
-
+    
+    connection_success = WiFi.softAP(APName, APName);
     delay(500);
-    DEBUGGING("Started AP mode as '%s' [ip=", APName);
-    DEBUGGINGL(WiFi.softAPIP());
-    DEBUGGINGC("]\n");
-    isAP = true;
+
+    if (connection_success) {
+        DEBUGGING("Started AP mode as '%s' [password=%s] [ip=", APName, APName);
+        DEBUGGINGL(WiFi.softAPIP());
+        DEBUGGINGC("]\n");
+        isAP = true;
+    } else {
+        DEBUGGING("[WIFI] AP mode failed\n");
+    }
 }
 
 void stop_forever() {
+    init_led();
     while (1) {
-        delay(1000);
+        led(ON);
+        delay(50);
+        led(OFF);
+        delay(50);
     }
 }
 

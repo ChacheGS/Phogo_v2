@@ -1,17 +1,18 @@
 #ifndef PHOGO_H_
 #define PHOGO_H_
 
-#include <Servo.h>
-
 #define ULTRASOUND_SAMPLES_PER_MEASURE 5
 #define PI 3.1415926536
 
 
 // Phogo constants
-#define WHEEL_DIAMETER 7.5 //mm (increase = spiral out)
-#define WHEEL_BASE 10.2 //mm (increase = spiral in) 
-#define STEPS_PER_REV 4076 // motor specs
+#define WHEEL_DIAMETER 75 //mm (increase = spiral out)
+#define WHEEL_BASE 102 //mm (increase = spiral in) 
+#define STEPS_PER_REV 512 // motor specs
+#define DELAY_BETWEEN_STEPS 2 // ms
 
+#define ON 0
+#define OFF !ON
 
 //---( begin servo pen constants )---
 

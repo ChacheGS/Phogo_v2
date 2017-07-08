@@ -113,5 +113,5 @@ void HTTPServerSetup(void) {
 
     server.begin();
 
-    DEBUGGING("HTTP AsyncServer started\n");
+    DEBUGGING("[HTTP]\tESP8266AsyncWebServer started\n");
 }

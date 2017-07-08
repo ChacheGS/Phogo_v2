@@ -7,6 +7,8 @@
 #include <ESPAsyncWebServer.h>
 #include <Arduino.h>
 
+#include "Phogo.h"
+
 #include "debug.h"
 
 const char* ssid = "Low Signal";
@@ -19,18 +21,18 @@ const char* mdns_hostname = "phogo";
 AsyncWebServer server(80);
 
 #define WIFI_CONNECTION_TIMEOUT 1000 * 10 // 10 s total
-#define RETRIES 3
+#define RECONNECTION_RETRIES 3
 uint8_t consumed_retries = 0;
 // Wifi Connection
 bool isAP = false;
-void WifiConnect() {
+int WifiConnect() {
     int connection_time = 0;
     int connection_start = millis();
     bool connection_success = true;
     WiFi.hostname(mdns_hostname);
     WiFi.mode(WIFI_STA);
 
-    DEBUGGING("[WIFI]\tconnecting to '%s'\n", ssid);
+    DEBUGGING("[WIFI]\tConnecting to '%s'\n", ssid);
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED && connection_success) {
@@ -45,7 +47,7 @@ void WifiConnect() {
         DEBUGGING("[WIFI]\tConnected to '%s'. Local IP: ", ssid);
         DEBUGGINGL(WiFi.localIP());
         DEBUGGINGC("\n");
-        return;
+        return 0;
     } else {
         DEBUGGING("[WIFI]\tConnection to '%s' timed out after ", ssid);
         DEBUGGINGL(connection_time / 1000.0);
@@ -54,7 +56,7 @@ void WifiConnect() {
 
     // TODO: maybe retry connection?
 
-    char APName[20]\t= {0};
+    char APName[20] = {0};
     sprintf(APName, "Phogo%08X", ESP.getFlashChipId());
     DEBUGGING("[WIFI]\tStarting AP mode as '%s'\n", APName);
     WiFi.mode(WIFI_AP);
@@ -72,17 +74,11 @@ void WifiConnect() {
         DEBUGGINGL(WiFi.softAPIP());
         DEBUGGINGC("]\n");
         isAP = true;
-    } else {
-        DEBUGGING("[WIFI]\tAP mode failed\n");
-    }
-    
-    if (consumed_retries > RETRIES) {
-        DEBUGGING("[PHOGO]\tConnection failed. Stopping forever.");
-        stop_forever();
-    } else {
-        ++consumed_retries;
-        WifiConnect();
-    }
+        return 0;
+    } 
+
+    DEBUGGING("[WIFI]\tAP mode failed\n");
+    return 1;
 }
 
 void stop_forever() {
@@ -99,9 +95,10 @@ void stop_forever() {
 void mDNSConnect() {
     if (!MDNS.begin(mdns_hostname)) {
         DEBUGGING("[MDNS]\tSetup error\n");
+        return;
     }
-    DEBUGGING("[MDNS]\tStarted: 'http://%s.local/'\n", mdns_hostname);
     MDNS.addService("http", "tcp", 80);
+    DEBUGGING("[MDNS]\tStarted: 'http://%s.local/'\n", mdns_hostname);
 }
 
 void setup() {
@@ -110,12 +107,20 @@ void setup() {
     while (!Serial) {
         // wait for initialization
     }
-    // Serial.println();
+    Serial.println("\n\n\n\n");
 #endif
 
     SPIFFS.begin();
     server.begin();
 
+    int connected = 0;
+    while ((WifiConnect() != 0) && (++consumed_retries <= RECONNECTION_RETRIES)) {
+            DEBUGGING("[WIFI]\tWiFi setup failed. Stopping forever.");
+            stop_forever();
+        } else {
+            ++consumed_retries;
+            WifiConnect();
+        }
     WifiConnect();
     mDNSConnect();
     HTTPServerSetup();

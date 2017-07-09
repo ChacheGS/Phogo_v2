@@ -16,7 +16,7 @@
 
 //---( begin servo pen constants )---
 
-#define PEN_SERVO_PIN 2 // D4
+#define PEN_SERVO_PIN 10 // D4
 #define SERVO_UP 180 // degrees
 #define SERVO_DOWN 140 // degrees
 

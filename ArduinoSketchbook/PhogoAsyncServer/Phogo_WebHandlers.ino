@@ -2,8 +2,12 @@
 
 static char current_command[MAX_LEN_JSON] = {0}; // initialized to empty
 
+void on_upload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final){
+  // Handle upload -> do nothing
+}
+
 void get_command(AsyncWebServerRequest* request, uint8_t* data, size_t len, size_t index, size_t total) {
-    DEBUGGING("[HTTP]\tReceiveing body %uB / %uB\n", index + len, total);
+    DEBUGGING("[HTTP]\tReceiving body %uB / %uB\n", index + len, total);
 
     if (total >= MAX_LEN_JSON) {
         AsyncResponseStream* response = request->beginResponseStream("text/plain");
@@ -104,10 +108,10 @@ void handler_404(AsyncWebServerRequest* request) {
 void HTTPServerSetup(void) {
 
     // entrypoints
-    server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+    server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=600");
 
     // api
-    server.on("/json", HTTP_POST, handle_command, NULL, get_command);
+    server.on("/json", HTTP_POST, handle_command, on_upload, get_command);
 
     server.onNotFound(handler_404);
 

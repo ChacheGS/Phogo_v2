@@ -80,7 +80,7 @@ class _Phogo(object):
         self.print_command(cmd)
         response = self._send_command(cmd)
         self.print_response(response)
-        return response
+        return response["result"]
 
     def forward(self, units=10):
         action = "forward"

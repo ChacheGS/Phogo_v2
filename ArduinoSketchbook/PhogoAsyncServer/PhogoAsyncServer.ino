@@ -11,12 +11,12 @@
 
 #include "debug.h"
 
-const char* ssid = "LGk10";
-const char* password  = "lgk10ros";
+// const char* ssid = "LGk10";
+// const char* password  = "lgk10ros";
 // const char* ssid = "Low Signal";
 // const char* password = "sierragador15";
-// const char* ssid = "Chache Hotspot";
-// const char* password = "wificarlos";
+const char* ssid = "Chache Hotspot";
+const char* password = "wificarlos";
 const char* mdns_hostname = "phogo";
 
 //Globals
@@ -79,7 +79,7 @@ bool WifiStartAccessPoint() {
     return false;
 }
 
-#define WIFI_CONNECTION_TIMEOUT 1000 * 5 // 5 s total
+#define WIFI_CONNECTION_TIMEOUT 1000 * 20 // 20 s total
 #define RECONNECTION_RETRIES 3
 uint8_t consumed_retries = 0;
 // Wifi Connection
@@ -131,11 +131,10 @@ void setup() {
     while (!Serial) {
         // wait for initialization
     }
-    Serial.println("\n\n" + LED_BUILTIN);
 #endif
 
     SPIFFS.begin();
-    server.begin();
+    // server.begin();
 
     int connected = 0;
     while ((connected == 0) && (++consumed_retries <= RECONNECTION_RETRIES)) {
@@ -159,6 +158,6 @@ void loop() {
         // MDNSConnect(mdns_hostname);
     // }
 
-    delay(100);
+    // delay(10);
     ESP.wdtFeed();
 }
